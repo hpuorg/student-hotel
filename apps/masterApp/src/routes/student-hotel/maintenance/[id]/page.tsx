@@ -130,7 +130,7 @@ export default function MaintenanceViewPage() {
       case 'PLUMBING': return '🚰';
       case 'ELECTRICAL': return '⚡';
       case 'HVAC': return '❄️';
-      case 'APPLIANCES': return '🔌';
+      case 'APPLIANCE': return '🔌';
       case 'FURNITURE': return '🪑';
       case 'CLEANING': return '🧹';
       case 'SECURITY': return '🔒';

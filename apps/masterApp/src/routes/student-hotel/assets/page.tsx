@@ -63,7 +63,7 @@ export default function AssetsPage() {
             id: '1',
             room_id: 'r1',
             name: 'Air Conditioner Unit',
-            category: 'APPLIANCE',
+            category: 'APPLIANCES',
             brand: 'Daikin',
             model: 'FTKC35UAVMA',
             serial_number: 'AC2024001',
@@ -119,7 +119,7 @@ export default function AssetsPage() {
             id: '4',
             room_id: 'r3',
             name: 'Mini Refrigerator',
-            category: 'APPLIANCE',
+            category: 'APPLIANCES',
             brand: 'Samsung',
             model: 'RT13A2658S8',
             serial_number: 'REF2024001',
@@ -189,8 +189,8 @@ export default function AssetsPage() {
     switch (category) {
       case 'FURNITURE': return 'bg-brown-100 text-brown-800';
       case 'ELECTRONICS': return 'bg-blue-100 text-blue-800';
-      case 'APPLIANCE': return 'bg-green-100 text-green-800';
-      case 'FIXTURE': return 'bg-purple-100 text-purple-800';
+      case 'APPLIANCES': return 'bg-green-100 text-green-800';
+      case 'FIXTURES': return 'bg-purple-100 text-purple-800';
       case 'VEHICLE': return 'bg-indigo-100 text-indigo-800';
       case 'EQUIPMENT': return 'bg-orange-100 text-orange-800';
       case 'OTHER': return 'bg-gray-100 text-gray-800';

@@ -264,7 +264,7 @@ export default function EditMaintenancePage() {
       case 'PLUMBING': return '🚰';
       case 'ELECTRICAL': return '⚡';
       case 'HVAC': return '❄️';
-      case 'APPLIANCES': return '🔌';
+      case 'APPLIANCE': return '🔌';
       case 'FURNITURE': return '🪑';
       case 'CLEANING': return '🧹';
       case 'SECURITY': return '🔒';

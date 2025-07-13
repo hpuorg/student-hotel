@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@modern-js/runtime/router';
-import { 
-  MAINTENANCE_CATEGORIES, 
-  MAINTENANCE_STATUS, 
+import {
+  MAINTENANCE_CATEGORIES,
+  MAINTENANCE_REQUEST_STATUS,
   PRIORITY_LEVELS,
   MAINTENANCE_CATEGORY_LABELS,
-  MAINTENANCE_STATUS_LABELS,
+  MAINTENANCE_REQUEST_STATUS_LABELS,
   PRIORITY_LEVEL_LABELS,
-  API_CONFIG 
+  API_CONFIG
 } from '../../../../constants';
 
 interface User {
@@ -30,7 +30,7 @@ interface MaintenanceFormData {
   user_id: string;
   room_id: string;
   category: keyof typeof MAINTENANCE_CATEGORIES;
-  status: keyof typeof MAINTENANCE_STATUS;
+  status: keyof typeof MAINTENANCE_REQUEST_STATUS;
   priority: keyof typeof PRIORITY_LEVELS;
   title: string;
   description: string;
@@ -300,12 +300,12 @@ export default function CreateMaintenancePage() {
               </label>
               <select
                 name="status"
-                value={formData.status}
+                value={String(formData.status)}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                {Object.entries(MAINTENANCE_STATUS_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>{label}</option>
+                {Object.entries(MAINTENANCE_REQUEST_STATUS_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>{String(label)}</option>
                 ))}
               </select>
             </div>

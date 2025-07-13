@@ -170,8 +170,8 @@ export default function CreateAssetPage() {
     switch (category) {
       case 'FURNITURE': return '🪑';
       case 'ELECTRONICS': return '📱';
-      case 'APPLIANCE': return '🏠';
-      case 'FIXTURE': return '💡';
+      case 'APPLIANCES': return '🏠';
+      case 'FIXTURES': return '💡';
       case 'VEHICLE': return '🚗';
       case 'EQUIPMENT': return '🔧';
       case 'OTHER': return '📦';

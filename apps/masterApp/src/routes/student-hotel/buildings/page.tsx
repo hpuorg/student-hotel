@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@modern-js/runtime/router';
+import { API_CONFIG } from '../../../constants';
 
 interface Building {
   id: string;

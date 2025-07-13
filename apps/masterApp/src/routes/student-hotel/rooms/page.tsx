@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@modern-js/runtime/router';
+import {
+  ROOM_TYPES,
+  ROOM_STATUS,
+  ROOM_TYPE_LABELS,
+  ROOM_STATUS_LABELS,
+  ROOM_TYPE_CLASSES,
+  ROOM_STATUS_CLASSES,
+  API_CONFIG
+} from '../../../constants';
 
 interface Room {
   id: string;
@@ -10,8 +19,8 @@ interface Room {
     address: string;
   };
   floor: number;
-  type: 'SINGLE' | 'DOUBLE' | 'TRIPLE' | 'QUAD' | 'DORMITORY' | 'SUITE';
-  status: 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | 'RESERVED' | 'OUT_OF_ORDER';
+  type: keyof typeof ROOM_TYPES;
+  status: keyof typeof ROOM_STATUS;
   capacity: number;
   current_occupants: number;
   monthly_rate: number;

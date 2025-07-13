@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from '@modern-js/runtime/router';
-import { 
-  SUPPORT_REQUEST_TYPES, 
-  SUPPORT_REQUEST_STATUS, 
+import {
+  SUPPORT_REQUEST_TYPES,
+  SUPPORT_REQUEST_STATUS,
   SUPPORT_REQUEST_PRIORITY,
   SUPPORT_REQUEST_TYPE_LABELS,
   SUPPORT_REQUEST_STATUS_LABELS,
   SUPPORT_REQUEST_PRIORITY_LABELS,
-  API_CONFIG 
+  API_CONFIG
 } from '../../../../constants';
 
 interface User {

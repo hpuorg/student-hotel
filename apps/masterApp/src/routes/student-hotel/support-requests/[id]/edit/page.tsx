@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from '@modern-js/runtime/router';
-import { 
-  SUPPORT_REQUEST_TYPES, 
-  SUPPORT_REQUEST_STATUS, 
-  SUPPORT_REQUEST_PRIORITY,
+import {
+  SUPPORT_REQUEST_TYPES,
+  SUPPORT_REQUEST_STATUS,
+  PRIORITY_LEVELS,
   SUPPORT_REQUEST_TYPE_LABELS,
   SUPPORT_REQUEST_STATUS_LABELS,
-  SUPPORT_REQUEST_PRIORITY_LABELS,
-  API_CONFIG 
+  PRIORITY_LEVEL_LABELS,
+  API_CONFIG
 } from '../../../../../constants';
 
 interface SupportRequestFormData {
@@ -15,7 +15,7 @@ interface SupportRequestFormData {
   room_id: string;
   type: keyof typeof SUPPORT_REQUEST_TYPES;
   status: keyof typeof SUPPORT_REQUEST_STATUS;
-  priority: keyof typeof SUPPORT_REQUEST_PRIORITY;
+  priority: keyof typeof PRIORITY_LEVELS;
   title: string;
   description: string;
   response: string;
@@ -353,7 +353,7 @@ export default function EditSupportRequestPage() {
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {Object.entries(SUPPORT_REQUEST_PRIORITY_LABELS).map(([key, label]) => (
+                  {Object.entries(PRIORITY_LEVEL_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>
                   ))}
                 </select>

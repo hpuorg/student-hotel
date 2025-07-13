@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from '@modern-js/runtime/router';
-import { 
-  MAINTENANCE_CATEGORIES, 
-  MAINTENANCE_STATUS, 
+import {
+  MAINTENANCE_CATEGORIES,
+  MAINTENANCE_REQUEST_STATUS,
   PRIORITY_LEVELS,
   MAINTENANCE_CATEGORY_LABELS,
-  MAINTENANCE_STATUS_LABELS,
+  MAINTENANCE_REQUEST_STATUS_LABELS,
   PRIORITY_LEVEL_LABELS,
-  API_CONFIG 
+  API_CONFIG
 } from '../../../constants';
 
 interface User {
@@ -30,7 +30,7 @@ interface MaintenanceRequest {
   user_id: string;
   room_id?: string;
   category: keyof typeof MAINTENANCE_CATEGORIES;
-  status: keyof typeof MAINTENANCE_STATUS;
+  status: keyof typeof MAINTENANCE_REQUEST_STATUS;
   priority: keyof typeof PRIORITY_LEVELS;
   title: string;
   description: string;
@@ -159,7 +159,7 @@ export default function MaintenancePage() {
     return matchesSearch && matchesStatus && matchesCategory && matchesPriority;
   });
 
-  const getStatusColor = (status: keyof typeof MAINTENANCE_STATUS) => {
+  const getStatusColor = (status: keyof typeof MAINTENANCE_REQUEST_STATUS) => {
     switch (status) {
       case 'PENDING': return 'bg-yellow-100 text-yellow-800';
       case 'IN_PROGRESS': return 'bg-blue-100 text-blue-800';
@@ -198,8 +198,9 @@ export default function MaintenancePage() {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const isOverdue = (scheduledDate: string, status: string) => {
-    if (status === 'COMPLETED' || status === 'CANCELLED' || !scheduledDate) return false;
+  const isOverdue = (scheduledDate: string, status: string | number | symbol) => {
+    const statusStr = String(status);
+    if (statusStr === 'COMPLETED' || statusStr === 'CANCELLED' || !scheduledDate) return false;
     return new Date(scheduledDate) < new Date();
   };
 
@@ -251,7 +252,7 @@ export default function MaintenancePage() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Statuses</option>
-              {Object.entries(MAINTENANCE_STATUS_LABELS).map(([key, label]) => (
+              {Object.entries(MAINTENANCE_REQUEST_STATUS_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
@@ -383,7 +384,7 @@ export default function MaintenancePage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(request.status)}`}>
-                        {MAINTENANCE_STATUS_LABELS[request.status]}
+                        {MAINTENANCE_REQUEST_STATUS_LABELS[request.status]}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

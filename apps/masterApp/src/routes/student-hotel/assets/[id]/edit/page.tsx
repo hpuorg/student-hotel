@@ -274,7 +274,7 @@ export default function EditAssetPage() {
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     errors.name ? 'border-red-300' : 'border-gray-300'
                   }`}
-                  placeholder="Samsung 55\" Smart TV"
+                  placeholder="Samsung 55&quot; Smart TV"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-600">{errors.name}</p>

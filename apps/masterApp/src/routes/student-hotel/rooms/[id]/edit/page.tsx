@@ -167,6 +167,18 @@ export default function EditRoomPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleInputChange = (field: keyof RoomFormData, value: string | number) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const getMaxFloor = () => {
+    const selectedBuilding = buildings.find(b => b.id === formData.building_id);
+    return selectedBuilding ? selectedBuilding.floors : 50;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -199,18 +211,6 @@ export default function EditRoomPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleInputChange = (field: keyof RoomFormData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const getMaxFloor = () => {
-    const selectedBuilding = buildings.find(b => b.id === formData.building_id);
-    return selectedBuilding ? selectedBuilding.floors : 50;
   };
 
   if (initialLoading) {
@@ -297,6 +297,7 @@ export default function EditRoomPage() {
               </select>
               {errors.building_id && <p className="mt-1 text-sm text-red-600">{errors.building_id}</p>}
             </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Room Type */}
@@ -463,23 +464,3 @@ export default function EditRoomPage() {
     </div>
   );
 }
-
-            {/* Floor */}
-            <div>
-              <label htmlFor="floor" className="block text-sm font-medium text-gray-700 mb-1">
-                Floor *
-              </label>
-              <input
-                type="number"
-                id="floor"
-                min="1"
-                max={getMaxFloor()}
-                value={formData.floor}
-                onChange={(e) => handleInputChange('floor', parseInt(e.target.value) || 1)}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.floor ? 'border-red-300' : 'border-gray-300'
-                }`}
-              />
-              {errors.floor && <p className="mt-1 text-sm text-red-600">{errors.floor}</p>}
-            </div>
-          </div>
