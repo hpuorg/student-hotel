@@ -27,8 +27,6 @@
     "@heroui/react": "^2.7.11",
     "@heroui/theme": "^2.4.17",
     "@modern-js/runtime": "2.68.2",
-    "@rspack/binding-win32-x64-msvc": "^1.4.6",
-    "@swc/core-win32-x64-msvc": "^1.12.11",
     "framer-motion": "^12.23.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
