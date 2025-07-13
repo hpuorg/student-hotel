@@ -1,0 +1,546 @@
+// This is your Prisma schema file for KSSV Student Hostel Management System
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER MANAGEMENT & AUTHENTICATION
+// ============================================================================
+
+enum UserRole {
+  ADMIN
+  STAFF
+  STUDENT
+  GUEST
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+
+model User {
+  id           String @id @default(uuid()) @db.Uuid
+  email        String     @unique
+  username     String?    @unique
+  password     String
+  first_name   String
+  last_name    String
+  phone        String?
+  avatar       String?
+  role         UserRole   @default(STUDENT)
+  status       UserStatus @default(PENDING)
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+  last_login_at DateTime?
+
+  // Relations
+  profile                          UserProfile?
+  bookings                         Booking[]
+  contracts                        Contract[]
+  payments                         Payment[]
+  support_requests                 SupportRequest[]
+  work_reports                     WorkReport[]
+  notifications                    Notification[]
+  created_rooms                    Room[]              @relation("RoomCreatedBy")
+  updated_rooms                    Room[]              @relation("RoomUpdatedBy")
+  assigned_maintenance_requests    MaintenanceRequest[] @relation("AssignedTo")
+  reported_maintenance_requests    MaintenanceRequest[] @relation("ReportedBy")
+  created_expenses                 Expense[]           @relation("ExpenseCreatedBy")
+  created_assets                   Asset[]             @relation("AssetCreatedBy")
+
+  @@map("users")
+}
+
+model UserProfile {
+  id               String @id @default(uuid()) @db.Uuid
+  user_id          String    @unique @db.Uuid
+  date_of_birth    DateTime?
+  address          String?
+  emergency_contact String?
+  student_id       String?   @unique
+  university       String?
+  major            String?
+  year_of_study    Int?
+  id_number        String?   @unique
+  program          String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// ============================================================================
+// ROOM MANAGEMENT
+// ============================================================================
+
+enum RoomType {
+  SINGLE
+  DOUBLE
+  TRIPLE
+  QUAD
+  DORMITORY
+  SUITE
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  RESERVED
+  OUT_OF_ORDER
+}
+
+model Building {
+  id          String @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  address     String
+  floors      Int
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  rooms Room[]
+
+  @@map("buildings")
+}
+
+model Room {
+  id                String @id @default(uuid()) @db.Uuid
+  number            String
+  building_id       String @db.Uuid
+  floor             Int
+  type              RoomType
+  capacity          Int
+  current_occupants Int        @default(0)
+  status            RoomStatus @default(AVAILABLE)
+  area              Float?
+  monthly_rate      Decimal    @db.Decimal(10, 2)
+  daily_rate        Decimal    @db.Decimal(10, 2)
+  description       String?
+  created_at        DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+  created_by_id     String?  @db.Uuid
+  updated_by_id     String?  @db.Uuid
+
+  // Relations
+  building             Building           @relation(fields: [building_id], references: [id])
+  created_by           User?              @relation("RoomCreatedBy", fields: [created_by_id], references: [id])
+  updated_by           User?              @relation("RoomUpdatedBy", fields: [updated_by_id], references: [id])
+  amenities            RoomAmenity[]
+  bookings             Booking[]
+  contracts            Contract[]
+  assets               Asset[]
+  maintenance_requests MaintenanceRequest[]
+
+  @@unique([number, building_id])
+  @@map("rooms")
+}
+
+model Amenity {
+  id          String @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  icon        String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  rooms RoomAmenity[]
+
+  @@map("amenities")
+}
+
+model RoomAmenity {
+  id         String @id @default(uuid()) @db.Uuid
+  room_id    String @db.Uuid
+  amenity_id String @db.Uuid
+  quantity   Int      @default(1)
+  created_at DateTime @default(now())
+
+  // Relations
+  room    Room    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  amenity Amenity @relation(fields: [amenity_id], references: [id], onDelete: Cascade)
+
+  @@unique([room_id, amenity_id])
+  @@map("room_amenities")
+}
+
+// ============================================================================
+// BOOKING MANAGEMENT
+// ============================================================================
+
+enum BookingType {
+  SHORT_TERM
+  LONG_TERM
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+model Booking {
+  id               String @id @default(uuid()) @db.Uuid
+  user_id          String @db.Uuid
+  room_id          String @db.Uuid
+  type             BookingType
+  status           BookingStatus @default(PENDING)
+  check_in_date    DateTime
+  check_out_date   DateTime
+  actual_check_in  DateTime?
+  actual_check_out DateTime?
+  guests           Int           @default(1)
+  total_amount     Decimal       @db.Decimal(10, 2)
+  notes            String?
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [user_id], references: [id])
+  room     Room      @relation(fields: [room_id], references: [id])
+  contract Contract?
+  payments Payment[]
+
+  @@map("bookings")
+}
+
+// ============================================================================
+// CONTRACT MANAGEMENT
+// ============================================================================
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  RENEWED
+}
+
+model Contract {
+  id              String @id @default(uuid()) @db.Uuid
+  booking_id      String        @unique @db.Uuid
+  user_id         String        @db.Uuid
+  room_id         String        @db.Uuid
+  contract_number String        @unique
+  status          ContractStatus @default(DRAFT)
+  start_date      DateTime
+  end_date        DateTime
+  monthly_rent    Decimal        @db.Decimal(10, 2)
+  deposit         Decimal        @db.Decimal(10, 2)
+  terms           String?
+  signed_at       DateTime?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  // Relations
+  booking  Booking   @relation(fields: [booking_id], references: [id])
+  user     User      @relation(fields: [user_id], references: [id])
+  room     Room      @relation(fields: [room_id], references: [id])
+  payments Payment[]
+
+  @@map("contracts")
+}
+
+// ============================================================================
+// PAYMENT MANAGEMENT
+// ============================================================================
+
+enum PaymentType {
+  RENT
+  DEPOSIT
+  FEE
+  FINE
+  REFUND
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CREDIT_CARD
+  DEBIT_CARD
+  ONLINE_PAYMENT
+  MOBILE_PAYMENT
+}
+
+model Payment {
+  id          String  @id @default(cuid())
+  user_id     String  @db.Uuid
+  booking_id  String? @db.Uuid
+  contract_id String? @db.Uuid
+  type        PaymentType
+  status      PaymentStatus @default(PENDING)
+  method      PaymentMethod
+  amount      Decimal       @db.Decimal(10, 2)
+  description String?
+  reference   String?       @unique
+  due_date    DateTime?
+  paid_at     DateTime?
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [user_id], references: [id])
+  booking  Booking?  @relation(fields: [booking_id], references: [id])
+  contract Contract? @relation(fields: [contract_id], references: [id])
+
+  @@map("payments")
+}
+
+// ============================================================================
+// SUPPORT & MAINTENANCE
+// ============================================================================
+
+enum SupportRequestType {
+  MAINTENANCE
+  COMPLAINT
+  INQUIRY
+  SERVICE_REQUEST
+  EMERGENCY
+  OTHER
+}
+
+enum SupportRequestStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model SupportRequest {
+  id          String @id @default(uuid()) @db.Uuid
+  user_id     String @db.Uuid
+  type        SupportRequestType
+  status      SupportRequestStatus @default(OPEN)
+  priority    Priority             @default(MEDIUM)
+  title       String
+  description String
+  response    String?
+  resolved_at DateTime?
+  created_at  DateTime             @default(now())
+  updated_at  DateTime             @updatedAt
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("support_requests")
+}
+
+enum MaintenanceRequestStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceCategory {
+  PLUMBING
+  ELECTRICAL
+  HVAC
+  FURNITURE
+  CLEANING
+  SECURITY
+  OTHER
+}
+
+model MaintenanceRequest {
+  id             String @id @default(uuid()) @db.Uuid
+  room_id        String @db.Uuid
+  reported_by_id String @db.Uuid
+  assigned_to_id String? @db.Uuid
+  category       MaintenanceCategory
+  status         MaintenanceRequestStatus @default(OPEN)
+  priority       Priority                 @default(MEDIUM)
+  title          String
+  description    String
+  notes          String?
+  completed_at   DateTime?
+  created_at     DateTime                 @default(now())
+  updated_at     DateTime                 @updatedAt
+
+  // Relations
+  room        Room  @relation(fields: [room_id], references: [id])
+  reported_by User  @relation("ReportedBy", fields: [reported_by_id], references: [id])
+  assigned_to User? @relation("AssignedTo", fields: [assigned_to_id], references: [id])
+
+  @@map("maintenance_requests")
+}
+
+// ============================================================================
+// ASSET MANAGEMENT
+// ============================================================================
+
+enum AssetStatus {
+  ACTIVE
+  MAINTENANCE
+  RETIRED
+  DAMAGED
+  LOST
+}
+
+enum AssetCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+  DAMAGED
+}
+
+model Asset {
+  id             String @id @default(uuid()) @db.Uuid
+  room_id        String? @db.Uuid
+  name           String
+  description    String?
+  category       String
+  brand          String?
+  model          String?
+  serial_number  String?       @unique
+  purchase_date  DateTime?
+  purchase_price Decimal?     @db.Decimal(10, 2)
+  status         AssetStatus    @default(ACTIVE)
+  condition      AssetCondition @default(GOOD)
+  notes          String?
+  created_by_id  String? @db.Uuid
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+
+  // Relations
+  room       Room? @relation(fields: [room_id], references: [id])
+  created_by User? @relation("AssetCreatedBy", fields: [created_by_id], references: [id])
+
+  @@map("assets")
+}
+
+// ============================================================================
+// FINANCIAL MANAGEMENT
+// ============================================================================
+
+enum ExpenseCategory {
+  UTILITIES
+  MAINTENANCE
+  SUPPLIES
+  STAFF_SALARY
+  INSURANCE
+  MARKETING
+  ADMINISTRATIVE
+  OTHER
+}
+
+model Expense {
+  id            String @id @default(uuid()) @db.Uuid
+  category      ExpenseCategory
+  amount        Decimal         @db.Decimal(10, 2)
+  description   String
+  vendor        String?
+  receipt       String?
+  date          DateTime
+  created_by_id String? @db.Uuid
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+
+  // Relations
+  created_by User? @relation("ExpenseCreatedBy", fields: [created_by_id], references: [id])
+
+  @@map("expenses")
+}
+
+// ============================================================================
+// STAFF MANAGEMENT
+// ============================================================================
+
+enum WorkReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model WorkReport {
+  id           String @id @default(uuid()) @db.Uuid
+  user_id      String @db.Uuid
+  date         DateTime
+  hours_worked Float
+  description  String
+  status       WorkReportStatus @default(DRAFT)
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("work_reports")
+}
+
+// ============================================================================
+// NOTIFICATION SYSTEM
+// ============================================================================
+
+enum NotificationType {
+  PAYMENT_DUE
+  CONTRACT_EXPIRING
+  MAINTENANCE_SCHEDULED
+  BOOKING_CONFIRMED
+  SUPPORT_REQUEST_UPDATE
+  SYSTEM_ANNOUNCEMENT
+  OTHER
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+model Notification {
+  id         String @id @default(uuid()) @db.Uuid
+  user_id    String @db.Uuid
+  type       NotificationType
+  status     NotificationStatus @default(UNREAD)
+  title      String
+  message    String
+  data       Json?
+  read_at    DateTime?
+  created_at DateTime           @default(now())
+  updated_at DateTime           @updatedAt
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("notifications")
+}
+
