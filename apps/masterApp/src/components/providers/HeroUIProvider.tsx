@@ -1,5 +1,6 @@
 import React from 'react';
 import { HeroUIProvider as Provider } from '@heroui/react';
+import ThemeProvider from './ThemeProvider';
 
 interface HeroUIProviderProps {
   children: React.ReactNode;
@@ -7,9 +8,11 @@ interface HeroUIProviderProps {
 
 export function HeroUIProvider({ children }: HeroUIProviderProps) {
   return (
-    <Provider>
-      {children}
-    </Provider>
+    <ThemeProvider defaultTheme="dark">
+      <Provider>
+        {children}
+      </Provider>
+    </ThemeProvider>
   );
 }
 

@@ -27,6 +27,16 @@ const apps: App[] = [
     color: 'bg-blue-500',
     isActive: true,
   },
+  {
+    id: 'dark-theme-demo',
+    name: 'Dark Theme Demo',
+    description: 'Modern dark theme interface with sidebar navigation, chat functionality, and AI assistant integration.',
+    icon: '🌙',
+    path: '/dark-theme',
+    category: 'UI/UX',
+    color: 'bg-gray-800',
+    isActive: true,
+  },
   // Placeholder for future apps
   {
     id: 'coming-soon-1',
